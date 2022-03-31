@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
+  <title>Wisielec</title>
+</head>
+<body>
+<div class="container">
+  <h1 class="text-center">Wisielec</h1>
+  <div class="float-right">Złe Odpowiedzi: <span id='mistakes'>0</span> z <span id='maxAttemps'></span></div>
+  <div class="text-center">
+    <img id='hangmanPic' src="./images/0.jpg" alt="">
+    
+    <p id="wordSpotlight">słowo do odgadnięcia</p>
+    <div id="keyboard"></div>
+    <button class="btn btn-info" onClick="reset()">Reset</button>
+  </div> 
+</div>
+
+<script>
+var mozliwe_slowa_w_wisielcu = [
+	"pies",
+	"kot",
+	"nigga",
+	"nigger",
+	"programowanie",
+	"chuj",
+	"gry",
+	"komputer",
+	"myszka",
+	"klawiatura",
+	"sluchawki",
+	"podkladka",
+	"mikrofon",
+	"krzeslo"
+]
+
+let answer = '';
+let maxAttemps = 10;
+let mistakes = 0;
+let guessed = [];
+let wordcheck = null;
+
+function nigga() {
+  answer = mozliwe_slowa_w_wisielcu[Math.floor(Math.random() * mozliwe_slowa_w_wisielcu.length)];
+}
+
+function generateButtons() {
+  let przyciski = 'abcdefghijklmnopqrstuvwxyz'.split('').map(letter =>
+    `
+      <button
+        class="btn btn-lg btn-primary m-2"
+        id='` + letter + `'
+        onClick="handleGuess('` + letter + `')"
+      >
+        ` + letter + `
+      </button>
+    `).join('');
+
+  document.getElementById('keyboard').innerHTML = przyciski;
+}
+
+function handleGuess(chosenLetter) {
+  guessed.indexOf(chosenLetter) === -1 ? guessed.push(chosenLetter) : null;
+  document.getElementById(chosenLetter).setAttribute('disabled', true);
+
+  if (answer.indexOf(chosenLetter) >= 0) {
+    guessedWord();
+    checkWin();
+  } else if (answer.indexOf(chosenLetter) === -1) {
+    mistakes++;
+    updateMistakes();
+    checkLose();
+    updateWisielecPic();
+  }
+}
+
+function updateWisielecPic() {
+  document.getElementById('hangmanPic').src = './images/' + mistakes + '.jpg';
+}
+
+function checkWin() {
+  if (wordcheck === answer) {
+    document.getElementById('keyboard').innerHTML = 'Wygrałeś!';
+  }
+}
+
+function checkLose() {
+  if (mistakes === maxAttemps) {
+    document.getElementById('wordSpotlight').innerHTML = 'Poprawna odpowiedź to: ' + answer;
+    document.getElementById('keyboard').innerHTML = 'Przegrałeś!';
+  }
+}
+
+function guessedWord() {
+  wordcheck = answer.split('').map(letter => (guessed.indexOf(letter) >= 0 ? letter : " _ ")).join('');
+
+  document.getElementById('wordSpotlight').innerHTML = wordcheck;
+}
+
+function updateMistakes() {
+  document.getElementById('mistakes').innerHTML = mistakes;
+}
+
+function reset() {
+  mistakes = 0;
+  guessed = [];
+  document.getElementById('hangmanPic').src = './images/0.jpg';
+
+  nigga();
+  guessedWord();
+  updateMistakes();
+  generateButtons();
+}
+
+document.getElementById('maxAttemps').innerHTML = maxAttemps;
+
+nigga();
+generateButtons();
+guessedWord();
+
+</script> 
+</body>
+</html>
